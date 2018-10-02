@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using burgershack.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MySql.Data.MySqlClient;
 
 namespace burgershack
 {
@@ -25,10 +28,20 @@ namespace burgershack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IDbConnection>(x => CreateDBContext()); //this method generates the connectionStr equivalent in Node/mongoose
+            services.AddTransient<BurgersRepository>(); //add transient will open a connection to the db, use it as long as it needs to, and then tears it down. This is far safer then leaving the connection always open. It's also cheaper.
+
             //equivalent to node's let bp = require("body-parser") etc...
             //this is where pull in third party programs and use them
             
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+        }
+
+        private IDbConnection CreateDBContext()
+        {
+            var connection = new MySqlConnection(""); //connection not connector! important
+            connection.Open();
+            return connection;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

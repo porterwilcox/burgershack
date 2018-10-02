@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using burgershack.Models;
+using burgershack.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace burgershack.Controllers
@@ -9,19 +10,16 @@ namespace burgershack.Controllers
     [ApiController]
     public class BurgersController : Controller //inside of Controller class is everything needed to handle CRUD
     {
-        List<Burger> burgers;
-        public BurgersController()
+        BurgersRepository _repo; //this gets instantiated in StartUp.cs
+        public BurgersController(BurgersRepository repo)
         {
-            burgers = new List<Burger>();
-            burgers.Add(new Burger("The Plain Jane", "Cheeseburger", 4.99m));
-            burgers.Add(new Burger("Mushroom Swiss", "Swiss cheese and mushrooms", 8.99m));
-            burgers.Add(new Burger("Baconater", "Double Cheeseburger with Bacon", 9.99m));
+            _repo = repo;
         }
 
         [HttpGet]
         public IEnumerable<Burger> Get()
         {
-            return burgers;
+            return _repo.GetAll();
         }
 
         [HttpPost]
@@ -31,8 +29,7 @@ namespace burgershack.Controllers
             {
                 burger = new Burger(burger.Name, burger.Description, burger.Price);
                 //burger.Id = Guid.NewGuid(); because of new burger constructor id will not be forgotten and don't need to add id like this
-                burgers.Add(burger);
-                return burger;
+                return _repo.Create(burger); //can just return this because create returns a burger from the db
             }
             throw new System.Exception("Invalid Burger");
         }
