@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using burgershack.Models;
+using burgershack.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace burgershack.Controllers
@@ -8,26 +9,26 @@ namespace burgershack.Controllers
     [ApiController]
     public class SmoothiesController : Controller //inside of Controller class is everything needed to handle CRUD
     {
-        List<Smoothie> smoothies;
-        public SmoothiesController()
+        SmoothiesRepository _repo;
+        public SmoothiesController(SmoothiesRepository repo)
         {
-            smoothies = new List<Smoothie>();
-            smoothies.Add(new Smoothie("The Plain Jane", "Cheeseburger", 4.99m));
-            smoothies.Add(new Smoothie("Mushroom Swiss", "Swiss cheese and mushrooms", 8.99m));
-            smoothies.Add(new Smoothie("Baconater", "Double Cheeseburger with Bacon", 9.99m));
+            _repo = repo;
         }
 
         [HttpGet]
         public IEnumerable<Smoothie> Get()
         {
-            return smoothies;
+            return _repo.GetAll();
         }
 
         [HttpPost]
-        public Smoothie Post([FromBody] Smoothie smoothie) //dotnet can only take in at most two parameters => req.param and req.body
+        public Smoothie Post(Smoothie smoothie)
         {
-            smoothies.Add(smoothie);
-            return smoothie;
+            if (ModelState.IsValid)
+            {
+                return _repo.Create(smoothie);
+            }
+            throw new System.Exception("Invalid Smoothie");
         }
     }
 }

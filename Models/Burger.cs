@@ -21,6 +21,7 @@ namespace burgershack.Models
             Description = description;
             Price = price;
         }
+        public Burger() { }
 
         // public Burger(Burger burger)
         // {

@@ -21,6 +21,11 @@ namespace burgershack.Controllers
         {
             return _repo.GetAll();
         }
+        [HttpGet("{id}")]
+        public Burger Get([FromRoute] int id)
+        {
+            return _repo.GetById(id);
+        }
 
         [HttpPost]
         public Burger Post([FromBody] Burger burger) //dotnet can only take in at most two parameters => req.param and req.body
@@ -32,6 +37,16 @@ namespace burgershack.Controllers
                 return _repo.Create(burger); //can just return this because create returns a burger from the db
             }
             throw new System.Exception("Invalid Burger");
+        }
+
+        [HttpPut]
+        public Burger Put([FromBody] Burger burger)
+        {
+            if (ModelState.IsValid)
+            {
+                return _repo.Update(burger);
+            }
+            throw new System.Exception("Must be a valid burger to change the burger.");
         }
     }
 }

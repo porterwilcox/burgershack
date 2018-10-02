@@ -43,19 +43,29 @@ namespace burgershack.Repositories
                 INSERT INTO burgers (name, description, price)
                 VALUES (@Name, @Description, @Price);
                 SELECT LAST_INSERT_ID();", burger);
-                //we are missing safety checks here
+            //we are missing safety checks here
             burger.Id = id;
             return burger;
         }
         //Update burger
+        // public Burger Update(Burger burger)
+        // {
+        //     //DO NOT FORGET TO SPECIFY WHICH BURGER
+        //     _db.Execute(@"UPDATE burgers SET (name, description, price)
+        //     VALUES (@Name, @Description, @Price)
+        //     WHERE id = @Id;", burger);
+        //     return burger;
+        // }
+
         public Burger Update(Burger burger)
         {
             //DO NOT FORGET TO SPECIFY WHICH BURGER
-            _db.Execute(@"UPDATE burgers SET (name, description, price)
-            VALUES (@Name, @Description, @Price)
+            _db.Execute(@"UPDATE burgers 
+            SET name = @Name, description = @Description, price = @Price
             WHERE id = @Id;", burger);
             return burger;
         }
+
         //Delete burger
         //this is okay to have multiple methods with different signatures because of c# overloading
         public Burger Delete(Burger burger)
@@ -66,7 +76,7 @@ namespace burgershack.Repositories
         //or do this
         public int Delete(int id)
         {
-            return _db.Execute(@"DELETE FROM burgers WHERE id = @Id", new {id});
+            return _db.Execute(@"DELETE FROM burgers WHERE id = @Id", new { id });
         }
     }
 }
