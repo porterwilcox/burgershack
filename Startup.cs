@@ -30,13 +30,20 @@ namespace burgershack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => {
+                options.AddPolicy("CorsDevPolicy", builder => {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+                });
+            });
+            services.AddMvc();
+
             services.AddTransient<IDbConnection>(x => CreateDBContext()); //this method generates the connectionStr equivalent in Node/mongoose
             services.AddTransient<BurgersRepository>(); //add transient will open a connection to the db, use it as long as it needs to, and then tears it down. This is far safer then leaving the connection always open. It's also cheaper.
             services.AddTransient<SmoothiesRepository>();
             //equivalent to node's let bp = require("body-parser") etc...
             //this is where pull in third party programs and use them
             
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            // services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         private IDbConnection CreateDBContext()
@@ -53,13 +60,14 @@ namespace burgershack
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors("CorsDevPolicy");
             }
             else
             {
                 app.UseHsts();
             }
-
-            app.UseHttpsRedirection();
+            app.UseDefaultFiles();
+            app.UseStaticFiles(); //by default will always look for wwwroot folder
             app.UseMvc();
         }
     }
