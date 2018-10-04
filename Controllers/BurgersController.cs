@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using burgershack.Models;
 using burgershack.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace burgershack.Controllers
 {
+    //[Authorize] here would ensure user is logged in before any access to burgers controller
     [Route("api/[controller]")] //[controller] is string interpolation where [controller] equals the name of the file minus controller
     [ApiController]
     public class BurgersController : Controller //inside of Controller class is everything needed to handle CRUD
@@ -27,6 +29,7 @@ namespace burgershack.Controllers
             return _repo.GetById(id);
         }
 
+        [Authorize] //this ensures that the user is logged in before able to post a new burger
         [HttpPost]
         public Burger Post([FromBody] Burger burger) //dotnet can only take in at most two parameters => req.param and req.body
         {

@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using burgershack.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,6 +31,18 @@ namespace burgershack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //User Auth
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Account/Login";
+                    options.Events.OnRedirectToLogin = (context) => {
+                        context.Response.StatusCode = 401;
+                        return Task.CompletedTask;
+                    };
+                });
+
+            //CORS
             services.AddCors(options => {
                 options.AddPolicy("CorsDevPolicy", builder => {
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials();
@@ -40,6 +53,7 @@ namespace burgershack
             services.AddTransient<IDbConnection>(x => CreateDBContext()); //this method generates the connectionStr equivalent in Node/mongoose
             services.AddTransient<BurgersRepository>(); //add transient will open a connection to the db, use it as long as it needs to, and then tears it down. This is far safer then leaving the connection always open. It's also cheaper.
             services.AddTransient<SmoothiesRepository>();
+            services.AddTransient<UserRepository>();
             //equivalent to node's let bp = require("body-parser") etc...
             //this is where pull in third party programs and use them
             
@@ -66,6 +80,7 @@ namespace burgershack
             {
                 app.UseHsts();
             }
+            app.UseAuthentication();
             app.UseDefaultFiles();
             app.UseStaticFiles(); //by default will always look for wwwroot folder
             app.UseMvc();
