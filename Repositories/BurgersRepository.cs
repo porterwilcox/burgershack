@@ -34,6 +34,14 @@ namespace burgershack.Repositories
             return _db.Query<Burger>("SELECT * FROM burgers WHERE id = @id;", new { id }).FirstOrDefault(); //FirstOrDefault is cool method that checks ienumerable length before targeting [0] to avoid error
         }
 
+        //Get burgers by user id
+        public IEnumerable<Burger> GetBurgersByUserId(string id)
+        {
+            return _db.Query<Burger>(@"SELECT * FROM userburgers
+            INNER JOIN burgers ON burgers.id = userburgers.burgerId
+            WHERE userId = @id;", new { id });
+        }
+
         //Create burger
         public Burger Create(Burger burger)
         {
